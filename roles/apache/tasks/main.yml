@@ -17,6 +17,7 @@
   get_url:
     url: "{{ apache_url }}"
     dest: "/usr/local/src/httpd-{{ apache_version }}.tar.gz"
+  tags: [apache, download, debug]
 
 - name: Extract Apache source
   unarchive:
