@@ -39,6 +39,7 @@
     make install
   args:
     creates: "{{ apache_prefix }}/bin/httpd"
+  tags: [apache, build, debug]    
 
 - name: Add Apache to PATH
   copy:
