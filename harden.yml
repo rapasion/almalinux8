@@ -1,0 +1,111 @@
+---
+- name: Harden AlmaLinux 9.8 (CIS Level 2)
+  hosts: all
+  become: yes
+
+  vars:
+    sshd_config_file: /etc/ssh/sshd_config
+
+  tasks:
+
+  # 1. System Updates
+  - name: Ensure latest security patches
+    dnf:
+      name: "*"
+      state: latest
+
+  - name: Enable automatic security updates
+    dnf:
+      name: dnf-automatic
+      state: present
+    notify: enable dnf-automatic
+
+  # 2. Filesystem Hardening
+  - name: Ensure /tmp is mounted with noexec,nosuid,nodev
+    mount:
+      path: /tmp
+      src: tmpfs
+      fstype: tmpfs
+      opts: defaults,noexec,nosuid,nodev
+      state: mounted
+
+  # 3. SSH Hardening
+  - name: Disable root login via SSH
+    lineinfile:
+      path: "{{ sshd_config_file }}"
+      regexp: '^PermitRootLogin'
+      line: 'PermitRootLogin no'
+      state: present
+
+  - name: Enforce key-based authentication only
+    lineinfile:
+      path: "{{ sshd_config_file }}"
+      regexp: '^PasswordAuthentication'
+      line: 'PasswordAuthentication no'
+      state: present
+
+  - name: Restrict SSH ciphers
+    lineinfile:
+      path: "{{ sshd_config_file }}"
+      regexp: '^Ciphers'
+      line: 'Ciphers aes256-ctr,aes192-ctr,aes128-ctr'
+
+  # 4. Firewall
+  - name: Ensure firewalld is enabled
+    service:
+      name: firewalld
+      state: started
+      enabled: yes
+
+  - name: Allow only required ports (e.g. 22, 443)
+    firewalld:
+      port: "{{ item }}/tcp"
+      permanent: yes
+      state: enabled
+    loop:
+      - 22
+      - 443
+    notify: reload firewalld
+
+  # 5. SELinux
+  - name: Ensure SELinux is enforcing
+    selinux:
+      policy: targeted
+      state: enforcing
+
+  # 6. Auditd
+  - name: Ensure auditd is installed
+    dnf:
+      name: audit
+      state: present
+
+  - name: Enable auditd service
+    service:
+      name: auditd
+      state: started
+      enabled: yes
+
+  - name: Add audit rules for privilege escalation
+    lineinfile:
+      path: /etc/audit/rules.d/priv_esc.rules
+      line: '-w /etc/sudoers -p wa -k scope'
+      create: yes
+
+  # 7. Logging
+  - name: Ensure rsyslog is enabled
+    service:
+      name: rsyslog
+      state: started
+      enabled: yes
+
+  handlers:
+    - name: enable dnf-automatic
+      service:
+        name: dnf-automatic.timer
+        state: started
+        enabled: yes
+
+    - name: reload firewalld
+      service:
+        name: firewalld
+        state: reloaded
