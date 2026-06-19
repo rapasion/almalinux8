@@ -1,0 +1,9 @@
+---
+- name: Hardened Apache Deployment
+  hosts: webservers
+  become: yes
+  roles:
+    - apache
+    - firewall
+    - ssl
+    - selinux
