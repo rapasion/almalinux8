@@ -1,6 +1,6 @@
 ---
 - name: Install Apache HTTP Server from source
-  hosts: webservers
+  hosts: all
   become: yes
 
   vars:
