@@ -1,0 +1,57 @@
+---
+- name: Install build dependencies
+  dnf:
+    name:
+      - gcc
+      - make
+      - wget
+      - tar
+      - apr-devel
+      - apr-util-devel
+      - pcre-devel
+      - openssl-devel
+      - expat-devel
+    state: present
+
+- name: Download Apache source
+  get_url:
+    url: "{{ apache_url }}"
+    dest: "/usr/local/src/httpd-{{ apache_version }}.tar.gz"
+
+- name: Extract Apache source
+  unarchive:
+    src: "/usr/local/src/httpd-{{ apache_version }}.tar.gz"
+    dest: "/usr/local/src"
+    remote_src: yes
+
+- name: Compile and install Apache
+  shell: |
+    cd /usr/local/src/httpd-{{ apache_version }}
+    ./configure --prefix={{ apache_prefix }} \
+                --enable-so \
+                --enable-ssl \
+                --enable-rewrite \
+                --with-mpm=event \
+                --with-included-apr \
+                --enable-mods-shared=all
+    make
+    make install
+  args:
+    creates: "{{ apache_prefix }}/bin/httpd"
+
+- name: Add Apache to PATH
+  copy:
+    dest: /etc/profile.d/apache.sh
+    content: |
+      export PATH=$PATH:{{ apache_prefix }}/bin
+
+- name: Create systemd service
+  template:
+    src: httpd.service.j2
+    dest: /etc/systemd/system/httpd.service
+
+- name: Enable and start Apache
+  systemd:
+    name: httpd
+    enabled: yes
+    state: started
