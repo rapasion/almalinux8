@@ -41,7 +41,7 @@
     lineinfile:
       path: "{{ sshd_config_file }}"
       regexp: '^PasswordAuthentication'
-      line: 'PasswordAuthentication no'
+      line: 'PasswordAuthentication yes'
       state: present
 
   - name: Restrict SSH ciphers
