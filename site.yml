@@ -1,6 +1,6 @@
 ---
 - name: Hardened Apache Deployment
-  hosts: webservers
+  hosts: all
   become: yes
   roles:
     - apache
