@@ -17,7 +17,7 @@
       - libcurl-devel
       - redhat-rpm-config
     state: present
-    tags: [apache, build, debug]
+  tags: [apache, build, debug]
 
 - name: Download Apache source
   get_url:
