@@ -4,6 +4,6 @@
   become: yes
   roles:
     - apache
-    #- firewall
+    - firewall
     #- ssl
     #- selinux
