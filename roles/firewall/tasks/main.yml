@@ -48,9 +48,3 @@
     permanent: yes
     state: enabled
   notify: reload firewalld
-
-handlers:
-  - name: reload firewalld
-    service:
-      name: firewalld
-      state: reloaded
