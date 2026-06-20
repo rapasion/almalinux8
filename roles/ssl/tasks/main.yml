@@ -36,13 +36,9 @@
 
 # Create chain file (server cert + self-signed root)
 - name: Create SSL chain file
-  copy:
-    content: "{{ lookup('file', ssl_cert_path) }}"
-    dest: "{{ ssl_chain_path }}"
-    owner: root
-    group: root
-    mode: '0644'
-  when: ssl_chain_path is defined
+  shell: cat {{ ssl_cert_path }} > {{ ssl_chain_path }}
+  args:
+    creates: "{{ ssl_chain_path }}"
   tags: [ssl, chain]
 
 - name: Configure Apache SSL virtual host
