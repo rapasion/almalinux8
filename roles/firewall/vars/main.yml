@@ -1,0 +1,5 @@
+# Define allowed ports for your stack
+firewall_allowed_ports:
+  - 22    # SSH
+  - 80    # HTTP
+  - 443   # HTTPS
