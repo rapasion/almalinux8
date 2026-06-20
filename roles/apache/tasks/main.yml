@@ -1,5 +1,5 @@
 ---
-- name: Install build dependencies
+- name: Install Apache build dependencies
   dnf:
     name:
       - gcc
@@ -11,7 +11,13 @@
       - pcre-devel
       - openssl-devel
       - expat-devel
+      - zlib-devel
+      - libnghttp2-devel
+      - jansson-devel
+      - libcurl-devel
+      - redhat-rpm-config
     state: present
+    tags: [apache, build, debug]
 
 - name: Download Apache source
   get_url:
