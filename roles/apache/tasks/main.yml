@@ -28,13 +28,13 @@
   ignore_errors: yes
   tags: [apache, optional, debug]
 
-- name: Set feature flags based on available packages
-  shell: |
-    if rpm -q libnghttp2-devel; then echo "enable_http2=true"; else echo "enable_http2=false"; fi
-    if rpm -q jansson-devel; then echo "enable_mod_md=true"; else echo "enable_mod_md=false"; fi
-  register: apache_features
-  changed_when: false
-  tags: [apache, debug]
+#- name: Set feature flags based on available packages
+#  shell: |
+#    if rpm -q libnghttp2-devel; then echo "enable_http2=true"; else echo "enable_http2=false"; fi
+#    if rpm -q jansson-devel; then echo "enable_mod_md=true"; else echo "enable_mod_md=false"; fi
+#  register: apache_features
+#  changed_when: false
+#  tags: [apache, debug]
 
 - name: Download Apache source
   get_url:
