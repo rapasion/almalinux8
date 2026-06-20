@@ -19,6 +19,23 @@
     state: present
   tags: [apache, build, debug]
 
+- name: Install optional HTTP/2 and mod_md dependencies
+  dnf:
+    name:
+      - libnghttp2-devel
+      - jansson-devel
+    state: present
+  ignore_errors: yes
+  tags: [apache, optional, debug]
+
+- name: Set feature flags based on available packages
+  shell: |
+    if rpm -q libnghttp2-devel; then echo "enable_http2=true"; else echo "enable_http2=false"; fi
+    if rpm -q jansson-devel; then echo "enable_mod_md=true"; else echo "enable_mod_md=false"; fi
+  register: apache_features
+  changed_when: false
+  tags: [apache, debug]
+
 - name: Download Apache source
   get_url:
     url: "{{ apache_url }}"
@@ -41,6 +58,8 @@
                 --with-mpm=event \
            #     --with-included-apr \
                 --enable-mods-shared=all
+                {% if apache_features.stdout is search("enable_http2=true") %} --enable-http2 {% endif %} \
+                {% if apache_features.stdout is search("enable_mod_md=true") %} --enable-md {% endif %}
     make
     make install
   args:
