@@ -3,6 +3,7 @@
   dnf:
     name: firewalld
     state: present
+  tags: [firewall, install, debug]
 
 - name: Ensure firewalld is enabled and running
   service:
