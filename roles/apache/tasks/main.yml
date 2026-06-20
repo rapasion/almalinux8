@@ -33,7 +33,7 @@
                 --enable-ssl \
                 --enable-rewrite \
                 --with-mpm=event \
-                --with-included-apr \
+           #     --with-included-apr \
                 --enable-mods-shared=all
     make
     make install
