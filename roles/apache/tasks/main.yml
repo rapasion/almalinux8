@@ -19,14 +19,14 @@
     state: present
   tags: [apache, build, debug]
 
-- name: Install optional HTTP/2 and mod_md dependencies
-  dnf:
-    name:
-      - libnghttp2-devel
-      - jansson-devel
-    state: present
-  ignore_errors: yes
-  tags: [apache, optional, debug]
+#- name: Install optional HTTP/2 and mod_md dependencies
+ # dnf:
+  #  name:
+   #   - libnghttp2-devel
+   #   - jansson-devel
+   # state: present
+ # ignore_errors: yes
+ # tags: [apache, optional, debug]
 
 #- name: Set feature flags based on available packages
 #  shell: |
@@ -48,10 +48,10 @@
     dest: "/usr/local/src"
     remote_src: yes
 
-- name: Gather installed packages
-  package_facts:
-    manager: auto
-  tags: [apache, build, debug]
+#- name: Gather installed packages
+#  package_facts:
+ #   manager: auto
+ # tags: [apache, build, debug]
 
 - name: Compile and install Apache
   shell: |
@@ -63,8 +63,7 @@
                 --with-mpm=event \
            #     --with-included-apr \
                 --enable-mods-shared=all
-    #            {% if apache_features.stdout is search("enable_http2=true") %} --enable-http2 {% endif %} \
-    #           {% if apache_features.stdout is search("enable_mod_md=true") %} --enable-md {% endif %}
+
     make
     make install
   args:
