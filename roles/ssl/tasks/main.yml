@@ -6,34 +6,44 @@
     owner: root
     group: root
     mode: '0755'
-  tags: [ssl, setup, debug]
+  tags: [ssl, setup]
 
-- name: Deploy SSL certificate
-  copy:
-    src: server.crt
-    dest: "{{ ssl_cert_path }}"
-    owner: root
-    group: root
-    mode: '0644'
-  tags: [ssl, cert, debug]
+# Generate private key if missing
+- name: Generate SSL private key
+  command: >
+    openssl genrsa -out {{ ssl_key_path }} 2048
+  args:
+    creates: "{{ ssl_key_path }}"
+  tags: [ssl, key]
 
-- name: Deploy SSL private key
-  copy:
-    src: server.key
-    dest: "{{ ssl_key_path }}"
-    owner: root
-    group: root
-    mode: '0600'
-  tags: [ssl, key, debug]
+# Generate CSR if missing
+- name: Generate SSL CSR
+  command: >
+    openssl req -new -key {{ ssl_key_path }} -out /usr/local/apache2/conf/ssl/server.csr
+    -subj "/C=PH/ST=Calabarzon/L=Binangonan/O=MyCompany/OU=IT/CN={{ ssl_server_name }}"
+  args:
+    creates: "/usr/local/apache2/conf/ssl/server.csr"
+  tags: [ssl, csr]
 
-- name: Deploy SSL chain certificate
+# Generate self-signed certificate if missing
+- name: Generate self-signed SSL certificate
+  command: >
+    openssl x509 -req -days 365 -in /usr/local/apache2/conf/ssl/server.csr
+    -signkey {{ ssl_key_path }} -out {{ ssl_cert_path }}
+  args:
+    creates: "{{ ssl_cert_path }}"
+  tags: [ssl, cert]
+
+# Create chain file (server cert + self-signed root)
+- name: Create SSL chain file
   copy:
-    src: server-chain.crt
+    content: "{{ lookup('file', ssl_cert_path) }}"
     dest: "{{ ssl_chain_path }}"
     owner: root
     group: root
     mode: '0644'
-  tags: [ssl, chain, debug]
+  when: ssl_chain_path is defined
+  tags: [ssl, chain]
 
 - name: Configure Apache SSL virtual host
   template:
@@ -43,4 +53,4 @@
     group: root
     mode: '0644'
   notify: restart apache
-  tags: [ssl, config, debug]
+  tags: [ssl, config]
