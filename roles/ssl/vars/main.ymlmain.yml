@@ -1,0 +1,5 @@
+ssl_cert_path: "/usr/local/apache2/conf/ssl/server.crt"
+ssl_key_path: "/usr/local/apache2/conf/ssl/server.key"
+ssl_chain_path: "/usr/local/apache2/conf/ssl/server-chain.crt"
+ssl_server_name: "example.com"
+ssl_document_root: "/usr/local/apache2/htdocs"
