@@ -1,0 +1,52 @@
+---
+- name: Ensure SSL directory exists
+  file:
+    path: /usr/local/apache2/conf/ssl
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags: [ssl, setup, debug]
+
+- name: Deploy SSL certificate
+  copy:
+    src: server.crt
+    dest: "{{ ssl_cert_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  tags: [ssl, cert, debug]
+
+- name: Deploy SSL private key
+  copy:
+    src: server.key
+    dest: "{{ ssl_key_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  tags: [ssl, key, debug]
+
+- name: Deploy SSL chain certificate
+  copy:
+    src: server-chain.crt
+    dest: "{{ ssl_chain_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  tags: [ssl, chain, debug]
+
+- name: Configure Apache SSL virtual host
+  template:
+    src: vhost-ssl.conf.j2
+    dest: /usr/local/apache2/conf/extra/vhost-ssl.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart apache
+  tags: [ssl, config, debug]
+
+handlers:
+  - name: restart apache
+    systemd:
+      name: httpd
+      state: restarted
