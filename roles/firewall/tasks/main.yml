@@ -1,0 +1,55 @@
+---
+- name: Ensure firewalld is installed
+  dnf:
+    name: firewalld
+    state: present
+
+- name: Ensure firewalld is enabled and running
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: Set default zone to public
+  firewalld:
+    immediate: yes
+    state: enabled
+    zone: public
+    permanent: yes
+
+- name: Allow required ports
+  firewalld:
+    port: "{{ item }}/tcp"
+    zone: public
+    permanent: yes
+    state: enabled
+  loop: "{{ firewall_allowed_ports }}"
+  notify: reload firewalld
+
+- name: Remove unnecessary services from firewalld
+  firewalld:
+    service: "{{ item }}"
+    zone: public
+    permanent: yes
+    state: disabled
+  loop:
+    - dhcpv6-client
+    - samba
+    - telnet
+    - ftp
+    - nfs
+  notify: reload firewalld
+
+- name: Ensure rich rules block ICMP redirects
+  firewalld:
+    rich_rule: 'rule protocol value="icmp" drop'
+    zone: public
+    permanent: yes
+    state: enabled
+  notify: reload firewalld
+
+handlers:
+  - name: reload firewalld
+    service:
+      name: firewalld
+      state: reloaded
