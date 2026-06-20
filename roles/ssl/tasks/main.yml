@@ -44,9 +44,3 @@
     mode: '0644'
   notify: restart apache
   tags: [ssl, config, debug]
-
-handlers:
-  - name: restart apache
-    systemd:
-      name: httpd
-      state: restarted
