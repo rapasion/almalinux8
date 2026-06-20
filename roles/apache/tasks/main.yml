@@ -48,6 +48,11 @@
     dest: "/usr/local/src"
     remote_src: yes
 
+- name: Gather installed packages
+  package_facts:
+    manager: auto
+  tags: [apache, build, debug]
+
 - name: Compile and install Apache
   shell: |
     cd /usr/local/src/httpd-{{ apache_version }}
