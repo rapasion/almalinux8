@@ -102,12 +102,11 @@
     name: httpd
     enabled: yes
     state: started
+#- name: Add SELinux file context rule for htdocs
+#  sefcontext:
+#    target: '/usr/local/apache2/htdocs(/.*)?'
+#    setype: httpd_sys_content_t
+#    state: present
 
-- name: Add SELinux file context rule for htdocs
-  sefcontext:
-    target: '/usr/local/apache2/htdocs(/.*)?'
-    setype: httpd_sys_content_t
-    state: present
-
-- name: Apply SELinux file context
-  command: restorecon -Rv /usr/local/apache2/htdocs
+#- name: Apply SELinux file context
+#  command: restorecon -Rv /usr/local/apache2/htdocs
