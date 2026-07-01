@@ -114,7 +114,7 @@
       system: yes
       state: present
       
-handlers:
+  handlers:
   - name: enable dnf-automatic
     service:
       name: dnf-automatic.timer
