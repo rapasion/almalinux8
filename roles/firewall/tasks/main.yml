@@ -48,9 +48,4 @@
     permanent: yes
     state: enabled
   notify: reload firewalld
-
-- name: Ensure SELinux context for htdocs
-  command: chcon -R -t httpd_sys_content_t {{ apache_prefix }}/htdocs
-  args:
-    warn: false
   
