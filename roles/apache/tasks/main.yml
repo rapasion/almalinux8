@@ -102,3 +102,8 @@
     name: httpd
     enabled: yes
     state: started
+
+- name: Ensure SELinux context for htdocs
+  command: chcon -R -t httpd_sys_content_t {{ apache_prefix }}/htdocs
+  args:
+    warn: false    
