@@ -113,15 +113,15 @@
       create_home: no
       system: yes
       state: present
+      
+handlers:
+  - name: enable dnf-automatic
+    service:
+      name: dnf-automatic.timer
+      state: started
+      enabled: yes    
 
-    handlers:
-    - name: enable dnf-automatic
-      service:
-        name: dnf-automatic.timer
-        state: started
-        enabled: yes    
-
-    - name: reload firewalld
-      service:
-        name: firewalld
-        state: reloaded
+  - name: reload firewalld
+    service:
+      name: firewalld
+      state: reloaded
