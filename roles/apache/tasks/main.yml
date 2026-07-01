@@ -76,6 +76,22 @@
     content: |
       export PATH=$PATH:{{ apache_prefix }}/bin
 
+- name: Ensure Apache runs as apache user
+  lineinfile:
+    path: "{{ apache_prefix }}/conf/httpd.conf"
+    regexp: '^User'
+    line: 'User apache'
+    state: present
+  notify: restart apache
+
+- name: Ensure Apache runs as apache group
+  lineinfile:
+    path: "{{ apache_prefix }}/conf/httpd.conf"
+    regexp: '^Group'
+    line: 'Group apache'
+    state: present
+  notify: restart apache  
+
 - name: Create systemd service
   template:
     src: httpd.service.j2
