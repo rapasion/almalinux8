@@ -1,0 +1,28 @@
+---
+# Ensure SELinux is installed and enforcing
+
+- name: Ensure SELinux policy is installed
+  dnf:
+    name: selinux-policy-targeted
+    state: present
+
+- name: Ensure SELinux is enforcing
+  selinux:
+    policy: targeted
+    state: enforcing
+
+- name: Persist SELinux enforcing mode in config
+  replace:
+    path: /etc/selinux/config
+    regexp: '^SELINUX=.*'
+    replace: 'SELINUX=enforcing'
+
+# Ensure Apache htdocs has correct SELinux context
+- name: Add SELinux file context rule for Apache htdocs
+  sefcontext:
+    target: '/usr/local/apache2/htdocs(/.*)?'
+    setype: httpd_sys_content_t
+    state: present
+
+- name: Apply SELinux file context to Apache htdocs
+  command: restorecon -Rv /usr/local/apache2/htdocs
