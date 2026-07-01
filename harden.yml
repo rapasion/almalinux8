@@ -100,19 +100,19 @@
       enabled: yes
 
   # 8. Apache User Hardening
-    - name: Ensure apache group exists
-      group:
-        name: apache
-        state: present
+  - name: Ensure apache group exists
+    group:
+      name: apache
+      state: present
 
-    - name: Ensure apache user exists
-      user:
-        name: apache
-        group: apache
-        shell: /sbin/nologin
-        create_home: no
-        system: yes
-        state: present
+  - name: Ensure apache user exists
+    user:
+      name: apache
+      group: apache
+      shell: /sbin/nologin
+      create_home: no
+      system: yes
+      state: present
 
     handlers:
     - name: enable dnf-automatic
