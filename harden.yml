@@ -13,6 +13,7 @@
     dnf:
       name: "*"
       state: latest
+    tags: [patch, build, debug]  
 
   - name: Enable automatic security updates
     dnf:
