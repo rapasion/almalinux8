@@ -29,7 +29,7 @@
       get_url:
         url: "{{ apache_url }}"
         dest: "/usr/local/src/httpd-{{ apache_version }}.tar.gz"
-      remote_src: yes
+        remote_src: yes
 
     # 3. Extract source
     - name: Extract Apache source
