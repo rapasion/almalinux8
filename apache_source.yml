@@ -4,7 +4,7 @@
   become: yes
 
   vars:
-    apache_version: "2.4.59"
+    apache_version: "2.4.68"
     apache_prefix: "/usr/local/apache2"
     apache_url: "https://downloads.apache.org/httpd/httpd-{{ apache_version }}.tar.gz"
 
