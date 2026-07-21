@@ -1,1 +1,112 @@
-test
+---
+- name: Install Apache build dependencies
+  dnf:
+    name:
+      - gcc
+      - make
+      - wget
+      - tar
+      - apr-devel
+      - apr-util-devel
+      - pcre-devel
+      - openssl-devel
+      - expat-devel
+      - zlib-devel
+      - libnghttp2-devel
+      - jansson-devel
+      - libcurl-devel
+      - redhat-rpm-config
+    state: present
+  tags: [apache, build, debug]
+
+#- name: Install optional HTTP/2 and mod_md dependencies
+ # dnf:
+  #  name:
+   #   - libnghttp2-devel
+   #   - jansson-devel
+   # state: present
+ # ignore_errors: yes
+ # tags: [apache, optional, debug]
+
+#- name: Set feature flags based on available packages
+#  shell: |
+#    if rpm -q libnghttp2-devel; then echo "enable_http2=true"; else echo "enable_http2=false"; fi
+#    if rpm -q jansson-devel; then echo "enable_mod_md=true"; else echo "enable_mod_md=false"; fi
+#  register: apache_features
+#  changed_when: false
+#  tags: [apache, debug]
+
+- name: Download Apache source
+  get_url:
+    url: "{{ apache_url }}"
+    dest: "/usr/local/src/httpd-{{ apache_version }}.tar.gz"
+  tags: [apache, download, debug]
+
+- name: Extract Apache source
+  unarchive:
+    src: "/usr/local/src/httpd-{{ apache_version }}.tar.gz"
+    dest: "/usr/local/src"
+    remote_src: yes
+
+#- name: Gather installed packages
+#  package_facts:
+ #   manager: auto
+ # tags: [apache, build, debug]
+
+- name: Compile and install Apache
+  shell: |
+    cd /usr/local/src/httpd-{{ apache_version }}
+    ./configure --prefix={{ apache_prefix }} \
+                --enable-so \
+                --enable-ssl \
+                --enable-rewrite \
+                --with-mpm=event \
+           #     --with-included-apr \
+                --enable-mods-shared=all
+
+    make
+    make install
+  args:
+    creates: "{{ apache_prefix }}/bin/httpd"
+  tags: [apache, build, debug]    
+
+- name: Add Apache to PATH
+  copy:
+    dest: /etc/profile.d/apache.sh
+    content: |
+      export PATH=$PATH:{{ apache_prefix }}/bin
+
+- name: Ensure Apache runs as apache user
+  lineinfile:
+    path: "{{ apache_prefix }}/conf/httpd.conf"
+    regexp: '^User'
+    line: 'User apache'
+    state: present
+  notify: restart apache
+
+- name: Ensure Apache runs as apache group
+  lineinfile:
+    path: "{{ apache_prefix }}/conf/httpd.conf"
+    regexp: '^Group'
+    line: 'Group apache'
+    state: present
+  notify: restart apache  
+
+- name: Create systemd service
+  template:
+    src: httpd.service.j2
+    dest: /etc/systemd/system/httpd.service
+
+- name: Enable and start Apache
+  systemd:
+    name: httpd
+    enabled: yes
+    state: started
+#- name: Add SELinux file context rule for htdocs
+#  sefcontext:
+#    target: '/usr/local/apache2/htdocs(/.*)?'
+#    setype: httpd_sys_content_t
+#    state: present
+
+#- name: Apply SELinux file context
+#  command: restorecon -Rv /usr/local/apache2/htdocs
