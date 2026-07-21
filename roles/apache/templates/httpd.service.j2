@@ -9,8 +9,8 @@ ExecStop={{ apache_prefix }}/bin/apachectl stop
 ExecReload={{ apache_prefix }}/bin/apachectl graceful
 PIDFile={{ apache_prefix }}/logs/httpd.pid
 Restart=always
-LimitNOFILE=65535
-PrivateTmp=true
+#LimitNOFILE=65535
+#PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target
