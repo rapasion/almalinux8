@@ -1,0 +1,19 @@
+- name: Install certbot
+  dnf:
+    name: certbot
+    state: present
+
+- name: Install certbot Apache plugin
+  dnf:
+    name: python3-certbot-apache
+    state: present
+
+- name: Obtain/renew Let’s Encrypt certificate
+  shell: >
+    certbot certonly --apache
+    --non-interactive --agree-tos
+    --email {{ ssl_email }}
+    -d {{ ssl_domains | join(',') }}
+  args:
+    creates: "/etc/letsencrypt/live/{{ ssl_domains[0] }}/fullchain.pem"
+  notify: restart apache
