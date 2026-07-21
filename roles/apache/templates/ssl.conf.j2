@@ -1,0 +1,21 @@
+<VirtualHost *:443>
+    ServerName {{ ssl_domains[0] }}
+    {% for domain in ssl_domains[1:] %}
+    ServerAlias {{ domain }}
+    {% endfor %}
+
+    DocumentRoot {{ apache_prefix }}/htdocs
+
+    SSLEngine on
+    SSLCertificateFile /etc/letsencrypt/live/{{ ssl_domains[0] }}/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/{{ ssl_domains[0] }}/privkey.pem
+
+    <Directory "{{ apache_prefix }}/htdocs">
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog {{ apache_prefix }}/logs/ssl_error.log
+    CustomLog {{ apache_prefix }}/logs/ssl_access.log combined
+</VirtualHost>
