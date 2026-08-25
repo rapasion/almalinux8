@@ -1,6 +1,6 @@
 ---
 - name: AlmaLinux 9.8 to 10 Upgrade via Leapp
-  hosts: almalinux_servers
+  hosts: all
   become: true
   vars:
     elevate_repo: "http://repo.almalinux.org/elevate/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
