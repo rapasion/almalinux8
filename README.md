@@ -59,7 +59,21 @@ openssl x509 -req -in server.csr -CA rootCA.crt -CAkey rootCA.key \
     -extfile <(printf "basicConstraints=CA:FALSE\nsubjectAltName=DNS:example.com")
 This produces a proper server certificate (server.crt) with CA:FALSE.
 
-5. Create the Chain File
+6. Create the Chain File
 bash
 cat server.crt rootCA.crt > server-chain.crt
 This concatenates the server certificate and the Root CA into a chain file (server-chain.crt).
+
+###########################################################################################
+Run only the pre-upgrade check:
+
+bash
+ansible-playbook upgrade.yml --tags preupgrade_check
+Skip reboot during testing:
+
+bash
+ansible-playbook upgrade.yml --skip-tags reboot_upgrade
+Run the full upgrade sequence:
+
+bash
+ansible-playbook upgrade.yml --tags "update_system,install_leapp_tools,preupgrade_check,run_upgrade,reboot_upgrade"
