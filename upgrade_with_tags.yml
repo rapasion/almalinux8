@@ -1,0 +1,70 @@
+---
+- name: AlmaLinux 9.8 to 10 Upgrade via Leapp
+  hosts: all
+  become: true
+  vars:
+    elevate_repo: "http://repo.almalinux.org/elevate/elevate-release-latest-el{{ ansible_distribution_major_version }}.noarch.rpm"
+
+  tasks:
+    - name: Ensure system is up-to-date
+      dnf:
+        name: "*"
+        state: latest
+      tags: 
+        - update_system
+      notify: reboot_system
+
+    - name: Install ELevate repository
+      dnf:
+        name: "{{ elevate_repo }}"
+        state: present
+      tags:
+        - install_repo
+
+    - name: Install Leapp upgrade tools
+      dnf:
+        name:
+          - leapp-upgrade
+          - leapp-data-almalinux
+        state: present
+      tags:
+        - install_leapp_tools
+
+    - name: Run Leapp pre-upgrade check
+      command: leapp preupgrade
+      register: preupgrade_result
+      ignore_errors: true
+      tags:
+        - preupgrade_check
+
+    - name: Display pre-upgrade report path
+      debug:
+        msg: "Check report at /var/log/leapp/leapp-report.txt and answerfile at /var/log/leapp/answerfile"
+      tags:
+        - show_report
+
+    - name: Run Leapp upgrade
+      command: leapp upgrade
+      register: upgrade_result
+      ignore_errors: true
+      tags:
+        - run_upgrade
+
+    - name: Reboot system to apply upgrade
+      reboot:
+        msg: "Rebooting to complete AlmaLinux upgrade"
+        pre_reboot_delay: 10
+        post_reboot_delay: 30
+        reboot_timeout: 600
+      tags:
+        - reboot_upgrade
+
+  handlers:
+    - name: reboot_system
+      reboot:
+        msg: "Rebooting after system update"
+        pre_reboot_delay: 10
+        post_reboot_delay: 30
+        reboot_timeout: 600
+      tags:
+        - reboot_system
