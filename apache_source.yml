@@ -14,14 +14,20 @@
       dnf:
         name:
           - gcc
+          - gcc-c++
           - make
           - wget
           - tar
+          - perl
+          - libtool
+          - autoconf
+          - automake
           - apr-devel
           - apr-util-devel
-          - pcre-devel
+          - pcre2-devel
           - openssl-devel
           - expat-devel
+          - zlib-devel
         state: present
 
     # 2. Download Apache source
